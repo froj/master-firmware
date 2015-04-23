@@ -168,6 +168,17 @@ static void cmd_fwd(BaseSequentialStream *chp, int argc, char **argv)
     m2_vel_setpt = -cmd;
 }
 
+static void cmd_servo(BaseSequentialStream *chp, int argc, char **argv)
+{
+    if (argc != 1) {
+        chprintf(chp, "usage: servo <position>\n");
+        return;
+    }
+    float cmd = strtof(argv[0], NULL);
+    m1_pos_setpt = cmd;
+    m2_pos_setpt = -cmd;
+}
+
 static void cmd_vel_setpt(BaseSequentialStream *chp, int argc, char **argv)
 {
     (void)argv;
@@ -264,6 +275,7 @@ const ShellCommand commands[] = {
     {"time", cmd_time},
     {"rpc_client_demo", cmd_rpc_client_test},
     {"fwd", cmd_fwd},
+    {"servo", cmd_servo},
     {"vel_setpt", cmd_vel_setpt},
     {NULL, NULL}
 };

@@ -7,6 +7,8 @@ extern "C" {
 
 extern float m1_vel_setpt;
 extern float m2_vel_setpt;
+extern float m1_pos_setpt;
+extern float m2_pos_setpt;
 
 #ifdef __cplusplus
 }

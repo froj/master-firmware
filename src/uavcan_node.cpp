@@ -7,6 +7,7 @@
 #include <src/can_bridge.h>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/control/Velocity.hpp>
+#include <cvra/motor/control/Position.hpp>
 #include <cvra/Reboot.hpp>
 #include <cvra/motor/feedback/MotorEncoderPosition.hpp>
 #include <cvra/motor/config/SpeedPID.hpp>
@@ -24,6 +25,9 @@
 #include <errno.h>
 
 #include <uavcan/protocol/global_time_sync_master.hpp>
+
+#include <chprintf.h>
+#include "usbconf.h"
 
 #define RIGHT_WHEEL_ID  11
 #define LEFT_WHEEL_ID   10
@@ -252,6 +256,13 @@ msg_t main(void *arg)
         node_fail("cvra::motor::control::Velocity publisher");
     }
 
+    uavcan::Publisher<cvra::motor::control::Position> position_ctrl_setpt_pub(node);
+    const int position_ctrl_setpt_pub_init_res = position_ctrl_setpt_pub.init();
+    if (position_ctrl_setpt_pub_init_res < 0)
+    {
+        node_fail("cvra::motor::control::Position publisher");
+    }
+
     /* Config client. */
     uavcan::ServiceClient<cvra::motor::config::SpeedPID> speed_pid_client(node);
     if (speed_pid_client.init() < 0) {
@@ -260,6 +271,7 @@ msg_t main(void *arg)
 
     speed_pid_client.setCallback([](const uavcan::ServiceCallResult<cvra::motor::config::SpeedPID>& call_result)
     {
+        chprintf((BaseSequentialStream*)&SDU1, "speed result: %d\n", call_result.isSuccessful());
         if (call_result.isSuccessful() == false) {
             // TODO: error handling.
         }
@@ -333,11 +345,17 @@ msg_t main(void *arg)
             }
         }
 
-        cvra::motor::control::Velocity vel_ctrl_setpt;
-        vel_ctrl_setpt.velocity = m1_vel_setpt;
-        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 10);
-        vel_ctrl_setpt.velocity = m2_vel_setpt;
-        velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 11);
+        //cvra::motor::control::Velocity vel_ctrl_setpt;
+        //vel_ctrl_setpt.velocity = m1_vel_setpt;
+        //velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 10);
+        //vel_ctrl_setpt.velocity = m2_vel_setpt;
+        //velocity_ctrl_setpt_pub.unicast(vel_ctrl_setpt, 11);
+
+        cvra::motor::control::Position pos_ctrl_setpt;
+        pos_ctrl_setpt.position = m1_pos_setpt;
+        position_ctrl_setpt_pub.unicast(pos_ctrl_setpt, 10);
+        pos_ctrl_setpt.position = m2_pos_setpt;
+        position_ctrl_setpt_pub.unicast(pos_ctrl_setpt, 11);
 
         can_bridge_send_frames(node);
 
