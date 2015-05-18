@@ -40,7 +40,7 @@
 #define RIGHT_WHEEL_ID  11
 #define LEFT_WHEEL_ID   10
 
-#define UAVCAN_NODE_STACK_SIZE 4096
+#define UAVCAN_NODE_STACK_SIZE 8000
 
 
 bus_enumerator_t bus_enumerator;
